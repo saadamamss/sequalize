@@ -7,7 +7,6 @@ module.exports = (sequelize, Datatype) => {
       weightLimit: {
         type: Datatype.STRING,
         allowNull: false,
-        unique: true,
       },
       image: {
         type: Datatype.STRING,
