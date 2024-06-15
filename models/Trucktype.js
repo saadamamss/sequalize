@@ -14,13 +14,13 @@ module.exports = (sequelize, Datatype) => {
       },
       dimentions: {
         type: Datatype.DATE,
-        defaultValue: null,
+        allowNull: false,
       },
 
     });
-  
-  
-  
+    
+    
+    
     return Trucktype;
   };
   
