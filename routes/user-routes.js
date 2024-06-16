@@ -2,6 +2,7 @@ const express = require('express');
 const route = express.Router();
 const db = require("../models");
 
+db.User.hasMany(db.Order);
 
 route.post("/user/create" , (req , res , next)=>{
     db.User.create({
@@ -14,11 +15,13 @@ route.post("/user/create" , (req , res , next)=>{
 });
 
 route.get("/users" , (req , res , next)=>{
-    db.User.findAll().then(response=> res.status(200).send(response))
+    db.User.findAll({include : db.Order}).then(response=> res.status(200).send(response))
     .catch(err=>res.status(400).send(err));
 });
 route.get("/user/:id" , (req , res , next)=>{
-    db.User.findOne({where:{id:req.params.id}}).then(response=> res.status(200).send(response))
+    db.User.findOne({where:{id:req.params.id}}).then(response=>{
+         res.status(200).send(response)
+    })
     .catch(err=>res.status(400).send(err));
 });
 

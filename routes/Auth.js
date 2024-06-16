@@ -3,6 +3,8 @@ const route = express.Router();
 const db = require("../models");
 var validator = require("email-validator");
 var validate = require("validatorjs");
+const Gotp = require("../functions/generateOTP");
+const sendmail = require("../functions/mailer");
 
 route.post("/signin", (req, res, next) => {
   if (validator.validate(req.body.user)) {
@@ -57,6 +59,7 @@ route.post("/signup", (req, res, next) => {
       const [user, created] = resposnse;
       if (created) {
         createprofile(user);
+        sendverificationcode();
       } else {
         res.status(400).send("This email has already been taken.");
       }
@@ -74,6 +77,21 @@ route.post("/signup", (req, res, next) => {
           });
         })
         .catch((err) => res.status(400).send(err));
+    }
+
+    async function sendverificationcode() {
+      const otpcode = await Gotp();
+      if (res.cookie(req.body.user, otpcode, { maxAge: 60 * 60 * 24 * 1000 })) {
+        // (60*60*24) = day
+        var mailOptions = {
+          from: "saadamams55@gmail.com",
+          to: req.body.user,
+          subject: "Sending Email using Node.js",
+          text: "your verification code is : " + otpcode,
+        };
+
+        sendmail(mailOptions);
+      }
     }
   } else {
     res.send(validation.errors);

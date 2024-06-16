@@ -4,6 +4,8 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const Trucktype = require("../models/Trucktype");
 
+db.Order.belongsTo(db.User);
+
 route.post("/order/create", (req, res, next) => {
   db.Order.create(req.body)
     .then((response) => res.status(200).send(response))
@@ -29,16 +31,13 @@ route.get("/orders/:status/:userId", (req, res, next) => {
     })
       .then((response) => {
         response.forEach(async (element, index) => {
-          const truck = await db.Trucktype.findOne({
-            where: { id: element.truck_type },
-          });
-          const shiptype = await db.Shiptype.findOne({
-            where: { id: element.ship_type },
-          });
+          const truck = await db.Trucktype.findByPk(element.truck_type);
+          const shiptype = await db.Shiptype.findByPk(element.ship_type);
           response[index].truck_type = truck;
           response[index].ship_type = shiptype;
 
           index + 1 == response.length && res.status(200).send(response);
+          
         });
       })
       .catch((err) => res.status(400).send(err));

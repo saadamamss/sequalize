@@ -4,20 +4,29 @@
     "password": null,
     "database": "pickup",
     "host": "localhost",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "MAIL_HOST":"smtp.gmail.com",
+    "AUTH_USER":"coronaz.zig@gmail.com",
+    "AUTH_PATH":"rpfh jvgh wnab exbs"
   },
   "test": {
     "username": "uqpd6luafvzhashb",
     "password": "N0vaFDCKK7R5S3fxKwpY",
     "database": "bgmj2bveur7inbmysdye",
     "host": "bgmj2bveur7inbmysdye-mysql.services.clever-cloud.com",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "MAIL_HOST":"smtp.gmail.com",
+    "AUTH_USER":"coronaz.zig@gmail.com",
+    "AUTH_PATH":"rpfh jvgh wnab exbs"
   },
   "production": {
     "username": "uqpd6luafvzhashb",
     "password": "N0vaFDCKK7R5S3fxKwpY",
     "database": "bgmj2bveur7inbmysdye",
     "host": "bgmj2bveur7inbmysdye-mysql.services.clever-cloud.com",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "MAIL_HOST":"smtp.gmail.com",
+    "AUTH_USER":"coronaz.zig@gmail.com",
+    "AUTH_PATH":"rpfh jvgh wnab exbs"
   }
 }
