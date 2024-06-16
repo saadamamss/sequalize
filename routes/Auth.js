@@ -5,35 +5,35 @@ var validator = require("email-validator");
 var validate = require("validatorjs");
 const Gotp = require("../functions/generateOTP");
 const sendmail = require("../functions/mailer");
-
-route.post("/signin", (req, res, next) => {
+const bcrypt = require("bcrypt");
+route.post("/signin", async (req, res, next) => {
+  var user;
   if (validator.validate(req.body.user)) {
-    Authenticate({ email: req.body.user, password: req.body.password });
+    user = await db.User.findOne({ where: { email: req.body.user } });
   } else {
-    Authenticate({ username: req.body.user, password: req.body.password });
+    user = await db.User.findOne({ where: { username: req.body.user } });
   }
 
-  function Authenticate(condition) {
-    db.User.findOne({
-      where: condition,
-    })
-      .then((response) => {
-        db.Profile.findOne().then((profInfo) => {
-          res.status(200).send(
-            response
-              ? {
-                  user: response,
-                  profile: profInfo,
-                }
-              : "These credentials do not match our records."
-          );
-        });
-      })
-      .catch((err) => res.status(400).send(err));
+  if (user === null) {
+    res.status(400).send({
+      error: "there is no account with these credentials please sign up .",
+    });
+  } else {
+    if (await bcrypt.compare(req.body.password, user.password)) {
+      const profile = await db.Profile.findOne({ where: { userId: user.id } });
+      res.status(200).send({
+        user: user,
+        profile: profile,
+      });
+    } else {
+      res
+        .status(400)
+        .send({ error: "These credentials do not match our records." });
+    }
   }
 });
 
-route.post("/signup", (req, res, next) => {
+route.post("/signup", async (req, res, next) => {
   let validation = new validate(
     req.body,
     {
@@ -49,11 +49,13 @@ route.post("/signup", (req, res, next) => {
   );
 
   if (validation.passes()) {
+    const hashedpassword = await bcrypt.hash(req.body.password, 10);
+
     db.User.findOrCreate({
       where: { email: req.body.user },
       defaults: {
         username: req.body.user.split("@")[0],
-        password: req.body.password,
+        password: hashedpassword,
       },
     }).then((resposnse) => {
       const [user, created] = resposnse;
@@ -67,6 +69,7 @@ route.post("/signup", (req, res, next) => {
 
     function createprofile(userInfo) {
       db.Profile.create({
+        UserId: userInfo.id,
         firstname: req.body.firstname,
         lastname: req.body.lastname,
       })
@@ -84,7 +87,7 @@ route.post("/signup", (req, res, next) => {
       if (res.cookie(req.body.user, otpcode, { maxAge: 60 * 60 * 24 * 1000 })) {
         // (60*60*24) = day
         var mailOptions = {
-          from: "saadamams55@gmail.com",
+          from: "saadamams99@gmail.com",
           to: req.body.user,
           subject: "Sending Email using Node.js",
           text: "your verification code is : " + otpcode,

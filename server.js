@@ -3,6 +3,8 @@ const app = express();
 const db = require("./models");
 var cookieParser = require('cookie-parser');
 
+const testRoutes = require("./routes/test");
+
 const userRoutes = require("./routes/user-routes");
 const onboardRoutes = require("./routes/onboard-routes");
 const ourserviceRoutes = require("./routes/ourservice-routes");
@@ -16,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-
+app.use("/", testRoutes);
 app.use("/", userRoutes);
 app.use("/", authRoutes);
 app.use("/", onboardRoutes);
