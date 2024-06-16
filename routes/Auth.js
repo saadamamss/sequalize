@@ -6,6 +6,7 @@ var validate = require("validatorjs");
 const Gotp = require("../functions/generateOTP");
 const sendmail = require("../functions/mailer");
 const bcrypt = require("bcrypt");
+
 route.post("/signin", async (req, res, next) => {
   var user;
   if (validator.validate(req.body.user)) {
@@ -101,4 +102,26 @@ route.post("/signup", async (req, res, next) => {
   }
 });
 
+route.post("/changepassword/:userId", async (req, res, next) => {
+  if(req.body.newpassword === req.body.currpassword){
+    res.status(400).send({error:"The new and current password must not be the same ."});
+  }else{
+        const hashednewpassword = await bcrypt.hash(req.body.newpassword, 10);
+        const user = await db.User.findByPk(req.params.userId);
+        if (await bcrypt.compare(req.body.currpassword, user.password)) {
+          if (
+            await db.User.update(
+              { password: hashednewpassword },
+              { where: { id: req.params.userId } }
+            )
+          ) {
+            res.status(200).send({msg:"password updated ."});
+          }
+        } else {
+          res.status(400).send({error:"current password is incorrect ."});
+        }
+
+  }
+
+});
 module.exports = route;
