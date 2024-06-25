@@ -47,4 +47,25 @@ route.get("/orders/:status/:userId", (req, res, next) => {
   }
 });
 
+route.get("/orders/:userId", (req, res, next) => {
+  db.Order.findAll({
+    where: { userId: req.params.userId },
+  })
+    .then((response) => {
+      if (response.length > 0) {
+        response.forEach(async (element, index) => {
+          const truck = await db.Trucktype.findByPk(element.truck_type);
+          const shiptype = await db.Shiptype.findByPk(element.ship_type);
+          response[index].truck_type = truck;
+          response[index].ship_type = shiptype;
+
+          index + 1 == response.length && res.status(200).send(response);
+        });
+      } else {
+        res.status(400).send({ error: "no data" });
+      }
+    })
+    .catch((err) => res.status(400).send(err));
+});
+
 module.exports = route;
