@@ -30,15 +30,18 @@ route.get("/orders/:status/:userId", (req, res, next) => {
       where: condition,
     })
       .then((response) => {
-        response.forEach(async (element, index) => {
-          const truck = await db.Trucktype.findByPk(element.truck_type);
-          const shiptype = await db.Shiptype.findByPk(element.ship_type);
-          response[index].truck_type = truck;
-          response[index].ship_type = shiptype;
+        if (response.length > 0) {
+          response.forEach(async (element, index) => {
+            const truck = await db.Trucktype.findByPk(element.truck_type);
+            const shiptype = await db.Shiptype.findByPk(element.ship_type);
+            response[index].truck_type = truck;
+            response[index].ship_type = shiptype;
 
-          index + 1 == response.length && res.status(200).send(response);
-          
-        });
+            index + 1 == response.length && res.status(200).send(response);
+          });
+        } else {
+          res.status(400).send({ error: "no data" });
+        }
       })
       .catch((err) => res.status(400).send(err));
   }
