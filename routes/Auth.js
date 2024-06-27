@@ -103,25 +103,37 @@ route.post("/signup", async (req, res, next) => {
 });
 
 route.post("/changepassword/:userId", async (req, res, next) => {
-  if(req.body.newpassword === req.body.currpassword){
-    res.status(400).send({error:"The new and current password must not be the same ."});
-  }else{
-        const hashednewpassword = await bcrypt.hash(req.body.newpassword, 10);
-        const user = await db.User.findByPk(req.params.userId);
-        if (await bcrypt.compare(req.body.currpassword, user.password)) {
-          if (
-            await db.User.update(
-              { password: hashednewpassword },
-              { where: { id: req.params.userId } }
-            )
-          ) {
-            res.status(200).send({msg:"password updated ."});
-          }
-        } else {
-          res.status(400).send({error:"current password is incorrect ."});
-        }
-
+  if (req.body.newpassword === req.body.currpassword) {
+    res
+      .status(400)
+      .send({ error: "The new and current password must not be the same ." });
+  } else {
+    const hashednewpassword = await bcrypt.hash(req.body.newpassword, 10);
+    const user = await db.User.findByPk(req.params.userId);
+    if (await bcrypt.compare(req.body.currpassword, user.password)) {
+      if (
+        await db.User.update(
+          { password: hashednewpassword },
+          { where: { id: req.params.userId } }
+        )
+      ) {
+        res.status(200).send({ msg: "password updated ." });
+      }
+    } else {
+      res.status(400).send({ error: "current password is incorrect ." });
+    }
   }
-
 });
+
+route.post("/changeprofile/:userId", async (req, res, next) => {
+  const s = await db.Profile.update(req.body, {
+    where: { userId: req.params.userId },
+  });
+  if (s) {
+    res.status(200).send({ msg: " updated success." });
+  } else {
+    res.status(400).send({ error: "Somthing goes wrong !" });
+  }
+});
+
 module.exports = route;
