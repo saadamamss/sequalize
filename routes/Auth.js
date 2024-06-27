@@ -149,7 +149,7 @@ route.post("/changeemail/:userId", async (req, res, next) => {
       sendverificationcode().then(() => {
         res
           .status(200)
-          .send({ error: "please check your inbox to verify email ." });
+          .send({ msg: "please check your inbox to verify email ." });
       });
     } else {
       res
