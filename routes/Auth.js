@@ -136,4 +136,46 @@ route.post("/changeprofile/:userId", async (req, res, next) => {
   }
 });
 
+route.post("/changeemail/:userId", async (req, res, next) => {
+  let validation = new validate(req.body, {
+    email: "required|email",
+  });
+
+  if (validation.passes()) {
+    const checkemail = await db.User.findOne({
+      where: { email: req.body.email },
+    });
+    if (checkemail === null) {
+      sendverificationcode().then(() => {
+        res
+          .status(200)
+          .send({ error: "please check your inbox to verify email ." });
+      });
+    } else {
+      res
+        .status(400)
+        .send({ error: "sorry this email attached to another account" });
+    }
+
+    async function sendverificationcode() {
+      const otpcode = await Gotp();
+      if (
+        res.cookie(req.body.email, otpcode, { maxAge: 60 * 60 * 24 * 1000 })
+      ) {
+        // (60*60*24) = day
+        var mailOptions = {
+          from: "saadamams99@gmail.com",
+          to: req.body.email,
+          subject: "Sending Email using Node.js",
+          text: "your verification code is : " + otpcode,
+        };
+
+        sendmail(mailOptions);
+      }
+    }
+  } else {
+    res.send(validation.errors);
+  }
+});
+
 module.exports = route;

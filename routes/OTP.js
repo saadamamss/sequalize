@@ -22,6 +22,26 @@ route.post("/verifyOTP", async (req, res, next) => {
   }
 });
 
+route.post("/verifyNewEmail/:userId", async (req, res, next) => {
+  if (req.cookies[req.body.newEmail]) {
+    if (req.cookies[req.body.newEmail] === req.body.code) {
+      res.clearCookie(req.body.newEmail);
+      if (
+        await db.User.update(
+          { email: req.body.newEmail },
+          { where: { id: req.params.userId } }
+        )
+      ) {
+        res.status(200).send({ msg: "verified" });
+      }
+    } else {
+      res.status(400).send({ error: "incorrect code!" });
+    }
+  } else {
+    res.status(400).send({ error: "this code is expired!" });
+  }
+});
+
 route.get("/OTP", (req, res, next) => {
   res.status(200).send(req.cookies);
 });
