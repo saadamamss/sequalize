@@ -10,9 +10,15 @@ const bcrypt = require("bcrypt");
 route.post("/signin", async (req, res, next) => {
   var user;
   if (validator.validate(req.body.user)) {
-    user = await db.User.findOne({ where: { email: req.body.user } });
+    user = await db.User.findOne({
+      where: { email: req.body.user },
+      include: db.Profile,
+    });
   } else {
-    user = await db.User.findOne({ where: { username: req.body.user } });
+    user = await db.User.findOne({
+      where: { username: req.body.user },
+      include: db.Profile,
+    });
   }
 
   if (user === null) {
@@ -21,11 +27,7 @@ route.post("/signin", async (req, res, next) => {
     });
   } else {
     if (await bcrypt.compare(req.body.password, user.password)) {
-      const profile = await db.Profile.findOne({ where: { userId: user.id } });
-      res.status(200).send({
-        user: user,
-        profile: profile,
-      });
+      res.status(200).send(user);
     } else {
       res
         .status(400)
@@ -52,35 +54,27 @@ route.post("/signup", async (req, res, next) => {
   if (validation.passes()) {
     const hashedpassword = await bcrypt.hash(req.body.password, 10);
 
-    db.User.findOrCreate({
+    var [user, created] = await db.User.findOrCreate({
       where: { email: req.body.user },
       defaults: {
         username: req.body.user.split("@")[0],
         password: hashedpassword,
       },
-    }).then((resposnse) => {
-      const [user, created] = resposnse;
-      if (created) {
-        createprofile(user);
-        sendverificationcode();
-      } else {
-        res.status(400).send("This email has already been taken.");
-      }
     });
-
-    function createprofile(userInfo) {
-      db.Profile.create({
-        UserId: userInfo.id,
+    if (created) {
+      const profile = await db.Profile.create({
+        UserId: user.id,
         firstname: req.body.firstname,
         lastname: req.body.lastname,
-      })
-        .then((response) => {
-          res.status(200).send({
-            user: userInfo,
-            profile: response,
-          });
-        })
-        .catch((err) => res.status(400).send(err));
+      });
+      sendverificationcode().then(async () => {
+        const returnuser = await db.User.findByPk(user.id, {
+          include: db.Profile,
+        });
+        res.status(200).send(returnuser);
+      });
+    } else {
+      res.status(400).send("This email has already been taken.");
     }
 
     async function sendverificationcode() {

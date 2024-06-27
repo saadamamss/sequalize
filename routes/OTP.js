@@ -42,8 +42,14 @@ route.post("/verifyNewEmail/:userId", async (req, res, next) => {
   }
 });
 
-route.get("/OTP", (req, res, next) => {
+route.post("/OTP", (req, res, next) => {
   res.status(200).send(req.cookies);
+});
+route.post("/addcookie", (req, res, next) => {
+  //res.clearCookie("");
+  //res.cookie("aliiiii", "111111111111111111");
+  res.status(200).send(req.cookies);
+  
 });
 
 module.exports = route;

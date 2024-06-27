@@ -19,12 +19,8 @@ module.exports = (sequelize, Datatype) => {
     },
   });
 
-  User.associate = (models) => {
-    User.hasOne(models.Profile, {
-      onDelete: "cascade",
-    });
-  };
-
+  
+  
   User.associate = (models) => {
     User.hasMany(models.Order, {
       onDelete: "cascade",
@@ -33,6 +29,12 @@ module.exports = (sequelize, Datatype) => {
   
   User.associate = (models) => {
     User.hasMany(models.Transaction, {
+      onDelete: "cascade",
+    });
+  };
+  
+  User.associate = (models) => {
+    User.hasOne(models.Profile, {
       onDelete: "cascade",
     });
   };
