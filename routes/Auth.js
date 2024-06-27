@@ -124,7 +124,9 @@ route.post("/changeprofile/:userId", async (req, res, next) => {
     where: { userId: req.params.userId },
   });
   if (s) {
-    res.status(200).send({ msg: " updated success." });
+    const user = await db.User.findByPk(req.params.userId , {include: db.profile});
+
+    res.status(200).send(user);
   } else {
     res.status(400).send({ error: "Somthing goes wrong !" });
   }
