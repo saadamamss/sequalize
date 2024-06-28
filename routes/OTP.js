@@ -33,7 +33,7 @@ route.post("/verifyNewEmail/:userId", async (req, res, next) => {
         )
       ) {
         const user = await db.User.findByPk(req.params.userId, {
-          include: db.profile,
+          include: db.Profile,
         });
 
         res.status(200).send(user);
