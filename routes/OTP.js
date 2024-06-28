@@ -39,10 +39,12 @@ route.post("/verifyNewEmail/:userId", async (req, res, next) => {
         res.status(200).send(user);
       }
     } else {
-      res.status(400).send({ error: "incorrect code!" });
+      res
+        .status(400)
+        .send({ error: "incorrect code please enter the correct code !" });
     }
   } else {
-    res.status(400).send({ error: "this code is expired!" });
+    res.status(400).send({ error: "code error !" });
   }
 });
 
